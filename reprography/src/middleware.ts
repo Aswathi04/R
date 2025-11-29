@@ -30,13 +30,31 @@ export default clerkMiddleware(async (auth, req) => {
     // Fetch user from Clerk to get email
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
-    const userEmail = user.emailAddresses[0]?.emailAddress;
-    const adminEmail = process.env.ADMIN_EMAIL;
     
-    if (userEmail !== adminEmail) {
-      // Not an admin, redirect to home
+    // Get primary email or first email
+    const primaryEmail = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId);
+    const userEmail = (primaryEmail?.emailAddress || user.emailAddresses[0]?.emailAddress)?.toLowerCase().trim();
+    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
+    
+    // Debug logging (check Vercel Function logs)
+    console.log('=== ADMIN AUTH DEBUG ===');
+    console.log('User ID:', userId);
+    console.log('User Email:', userEmail);
+    console.log('Admin Email from env:', adminEmail);
+    console.log('Emails match:', userEmail === adminEmail);
+    console.log('========================');
+    
+    if (!adminEmail) {
+      console.log('ERROR: ADMIN_EMAIL environment variable is not set!');
       return NextResponse.redirect(new URL('/', req.url));
     }
+    
+    if (userEmail !== adminEmail) {
+      console.log('Access denied: email mismatch');
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+    
+    console.log('Admin access granted!');
   }
   
   return NextResponse.next();
