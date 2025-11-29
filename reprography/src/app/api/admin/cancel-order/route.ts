@@ -28,10 +28,10 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await supabase
       .from('orders')
       .update({ 
-        status: 'cancelled',
+        status: 'cancelled' as const,
         cancellation_reason: reason || 'Cancelled by admin',
         updated_at: new Date().toISOString()
-      })
+      } as any)
       .eq('id', orderId);
 
     if (updateError) {

@@ -44,9 +44,10 @@ export async function subscribeToPush(userId: string): Promise<boolean> {
         return false;
       }
       
+      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+        applicationServerKey: applicationServerKey.buffer as ArrayBuffer
       });
     }
     

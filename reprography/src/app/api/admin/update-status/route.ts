@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       .update({ 
         status: newStatus,
         updated_at: new Date().toISOString()
-      })
+      } as any)
       .eq('id', orderId);
 
     if (updateError) {

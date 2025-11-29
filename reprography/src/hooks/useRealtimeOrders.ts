@@ -4,12 +4,7 @@ import { useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 import { Order } from '@/lib/database.types';
-
-type RealtimePayload = {
-  eventType: 'INSERT' | 'UPDATE' | 'DELETE';
-  new: Order;
-  old: Order;
-};
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 interface UseRealtimeOrdersOptions {
   onNewOrder?: (order: Order) => void;
@@ -25,10 +20,10 @@ export const useRealtimeOrders = (options: UseRealtimeOrdersOptions = {}) => {
     // Open a websocket channel
     const channel = supabase
       .channel('admin-dashboard-live')
-      .on(
-        'postgres_changes',
+      .on<Order>(
+        'postgres_changes' as any,
         { event: '*', schema: 'public', table: 'orders' },
-        (payload: RealtimePayload) => {
+        (payload: RealtimePostgresChangesPayload<Order>) => {
           console.log('Realtime event:', payload.eventType, payload);
 
           // Play sound if new order inserted
@@ -36,13 +31,13 @@ export const useRealtimeOrders = (options: UseRealtimeOrdersOptions = {}) => {
             const audio = new Audio('/sounds/notification_ping.mp3');
             audio.play().catch(e => console.log('Audio permission needed:', e));
             
-            if (onNewOrder) {
-              onNewOrder(payload.new);
+            if (onNewOrder && payload.new) {
+              onNewOrder(payload.new as Order);
             }
           }
 
-          if (payload.eventType === 'UPDATE' && onOrderUpdate) {
-            onOrderUpdate(payload.new);
+          if (payload.eventType === 'UPDATE' && onOrderUpdate && payload.new) {
+            onOrderUpdate(payload.new as Order);
           }
 
           // Invalidate cache so React Query re-fetches the fresh list
