@@ -1,36 +1,152 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# REPROGRAPHY v2.0 - College Print Shop Management System
+
+A real-time college printing store management system built with Next.js 14+, Supabase, and Clerk authentication.
+
+## Features
+
+- **Dual-Role Access**: Dedicated interfaces for Students (Submission) and Admins (Fulfillment)
+- **Live Admin Dashboard**: Auto-updates via WebSockets with sound alerts for new orders
+- **Smart Push Notifications**: Browser-based notifications for order status updates
+- **Universal File Upload**: Support for PDF, JPG, and PNG with validation
+- **Guest & Registered Access**: Full functionality available without account creation
+
+## Tech Stack
+
+- **Framework**: Next.js 14+ (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Query (TanStack Query)
+- **Real-Time**: Supabase Realtime (WebSockets)
+- **Database**: Supabase (PostgreSQL)
+- **File Storage**: Supabase Storage
+- **Authentication**: Clerk
+- **Notifications**: Web Push API
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- npm or yarn
+- Supabase account
+- Clerk account
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd reprography
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Copy the environment variables:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Configure your environment variables in `.env.local`:
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-## Learn More
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
 
-To learn more about Next.js, take a look at the following resources:
+# Admin
+ADMIN_EMAIL=your_admin_email@example.com
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Web Push (generate with: npx web-push generate-vapid-keys)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_vapid_public_key
+VAPID_PRIVATE_KEY=your_vapid_private_key
+VAPID_SUBJECT=mailto:your_email@example.com
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Set up Supabase:
+   - Create a new Supabase project
+   - Run the SQL schema from `supabase/schema.sql`
+   - Create a storage bucket named `print-files`
+   - Enable Realtime for the `orders` table
 
-## Deploy on Vercel
+6. Generate VAPID keys for push notifications:
+```bash
+npx web-push generate-vapid-keys
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+7. Run the development server:
+```bash
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+8. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── (auth)/           # Login/Signup routes
+│   ├── (student)/        # Student dashboard
+│   ├── admin/            # Admin dashboard
+│   ├── guest/            # Guest order flow
+│   └── api/              # API routes
+├── components/
+│   ├── admin/            # Admin components
+│   ├── notifications/    # Push notification components
+│   ├── providers/        # Context providers
+│   ├── student/          # Student components
+│   └── ui/               # UI components
+├── hooks/                # Custom React hooks
+└── lib/                  # Utilities and configurations
+```
+
+## Database Schema
+
+### Orders Table
+Stores print orders with file info, print specs, and status.
+
+### Push Subscriptions Table
+Stores browser push notification subscriptions.
+
+### Admin Access Table
+Whitelist for admin users.
+
+## Deployment
+
+Deploy to Vercel:
+
+```bash
+npm run build
+vercel deploy
+```
+
+## Adding Sound Files
+
+For the notification sound feature, add an MP3 file to:
+```
+public/sounds/notification_ping.mp3
+```
+
+## Adding Icons
+
+Add PWA icons to:
+```
+public/icons/icon-192x192.png
+public/icons/icon-512x512.png
+public/icons/badge-96x96.png
+```
+
+## License
+
+MIT
+
+## Author
+
+College Reprography Team - 2025
